@@ -77,10 +77,17 @@ void IndexNSG::Load_nn_graph(const char *filename) {
   unsigned kk = (k + 3) / 4 * 4;
   for (size_t i = 0; i < num; i++) {
     in.seekg(4, std::ios::cur);
+    // in.read((char *) &k, sizeof(unsigned));
+    // std::cout << k << std::endl;
     final_graph_[i].resize(k);
     final_graph_[i].reserve(kk);
     in.read((char *)final_graph_[i].data(), k * sizeof(unsigned));
   }
+  // // print final_graph_[0]
+  // for (size_t i = 0; i < final_graph_[0].size(); i++) {
+  //   std::cout << final_graph_[0][i] << " ";
+  // }
+  // std::cout << std::endl;
   in.close();
 }
 
@@ -130,6 +137,8 @@ void IndexNSG::get_neighbors(const float *query, const Parameters &parameter,
       unsigned n = retset[k].id;
 
       for (unsigned m = 0; m < final_graph_[n].size(); ++m) {
+        // std::cout << n << " " << m << " ";
+        // std::cout << final_graph_[n][m] << std::endl;
         unsigned id = final_graph_[n][m];
         if (flags[id]) continue;
         flags[id] = 1;
@@ -234,6 +243,7 @@ void IndexNSG::init_graph(const Parameters &parameters) {
   }
   std::vector<Neighbor> tmp, pool;
   ep_ = rand() % nd_;  // random initialize navigating point
+  // std::cout << "123" << std::endl;
   get_neighbors(center, parameters, tmp, pool);
   ep_ = tmp[0].id;
   delete center;
@@ -405,6 +415,7 @@ void IndexNSG::Build(size_t n, const float *data, const Parameters &parameters) 
   Load_nn_graph(nn_graph_path.c_str());
   data_ = data;
   init_graph(parameters);
+  // std::cout << "!!!" << std::endl;
   SimpleNeighbor *cut_graph_ = new SimpleNeighbor[nd_ * (size_t)range];
   Link(parameters, cut_graph_);
   final_graph_.resize(nd_);

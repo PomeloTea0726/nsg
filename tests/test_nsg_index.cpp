@@ -4,37 +4,36 @@
 
 #include <efanna2e/index_nsg.h>
 #include <efanna2e/util.h>
+#include <load_data.h>
+#include <cstring>
 
-void load_data(char* filename, float*& data, unsigned& num,
-               unsigned& dim) {  // load data with sift10K pattern
-  std::ifstream in(filename, std::ios::binary);
-  if (!in.is_open()) {
-    std::cout << "open file error" << std::endl;
-    exit(-1);
-  }
-  in.read((char*)&dim, 4);
-  in.seekg(0, std::ios::end);
-  std::ios::pos_type ss = in.tellg();
-  size_t fsize = (size_t)ss;
-  num = (unsigned)(fsize / (dim + 1) / 4);
-  data = new float[(size_t)num * (size_t)dim];
 
-  in.seekg(0, std::ios::beg);
-  for (size_t i = 0; i < num; i++) {
-    in.seekg(4, std::ios::cur);
-    in.read((char*)(data + i * dim), dim * 4);
-  }
-  in.close();
-}
 int main(int argc, char** argv) {
   if (argc != 7) {
-    std::cout << argv[0] << " data_file nn_graph_path L R C save_graph_file"
+    std::cout << argv[0] << " dataset nn_graph_path L R C save_graph_file"
               << std::endl;
     exit(-1);
   }
+
   float* data_load = NULL;
   unsigned points_num, dim;
-  load_data(argv[1], data_load, points_num, dim);
+  if (strcmp(argv[1], "sift1m") == 0) {
+    points_num = 1e6;
+    load_data_bvecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/bigann_base.bvecs", data_load, dim, points_num);
+  }
+  else if (strcmp(argv[1], "sift10m") == 0) {
+    points_num = 1e7;
+    load_data_bvecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/bigann_base.bvecs", data_load, dim, points_num);
+  }
+  else if (strcmp(argv[1], "SBERT1M") == 0) {
+    points_num = 1e6;
+    load_data_SBERT("/mnt/scratch/wenqi/Faiss_experiments/sbert/sbert1M.fvecs", data_load, points_num);
+    dim = 384;
+  }
+  else {
+    std::cout << "Unknown dataset" << std::endl;
+    exit(-1);
+  }
 
   std::string nn_graph_path(argv[2]);
   unsigned L = (unsigned)atoi(argv[3]);
@@ -51,6 +50,8 @@ int main(int argc, char** argv) {
   paras.Set<unsigned>("R", R);
   paras.Set<unsigned>("C", C);
   paras.Set<std::string>("nn_graph_path", nn_graph_path);
+
+  std::cout << "Building index" << std::endl;
 
   index.Build(points_num, data_load, paras);
   auto e = std::chrono::high_resolution_clock::now();
