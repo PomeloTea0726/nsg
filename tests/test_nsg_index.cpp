@@ -17,11 +17,11 @@ int main(int argc, char** argv) {
 
   float* data_load = NULL;
   unsigned points_num, dim;
-  if (strcmp(argv[1], "sift1m") == 0) {
+  if (strcmp(argv[1], "SIFT1M") == 0) {
     points_num = 1e6;
     load_data_bvecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/bigann_base.bvecs", data_load, dim, points_num);
   }
-  else if (strcmp(argv[1], "sift10m") == 0) {
+  else if (strcmp(argv[1], "SIFT10M") == 0) {
     points_num = 1e7;
     load_data_bvecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/bigann_base.bvecs", data_load, dim, points_num);
   }
@@ -29,6 +29,16 @@ int main(int argc, char** argv) {
     points_num = 1e6;
     load_data_SBERT("/mnt/scratch/wenqi/Faiss_experiments/sbert/sbert1M.fvecs", data_load, points_num);
     dim = 384;
+  }
+  else if (strcmp(argv[1], "Deep1M") == 0) {
+    points_num = 1e6;
+    load_data_deep_fbin("/mnt/scratch/wenqi/Faiss_experiments/deep1b/base.1B.fbin", data_load, points_num);
+    dim = 96;
+  }
+  else if (strcmp(argv[1], "Deep10M") == 0) {
+    points_num = 1e7;
+    load_data_deep_fbin("/mnt/scratch/wenqi/Faiss_experiments/deep1b/base.1B.fbin", data_load, points_num);
+    dim = 96;
   }
   else {
     std::cout << "Unknown dataset" << std::endl;

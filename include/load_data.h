@@ -1,3 +1,4 @@
+/* SIFT1B gt */
 void load_data_ivecs(const char* filename, std::vector<std::vector<unsigned>>& data, unsigned num) { // load given num of vecs
   std::ifstream in(filename, std::ios::binary);
   if (!in.is_open()) {
@@ -15,6 +16,7 @@ void load_data_ivecs(const char* filename, std::vector<std::vector<unsigned>>& d
   in.close();
 }
 
+/* SIFT1B base | query */
 void load_data_bvecs(const char* filename, float*& data,
                unsigned& dim, unsigned num) { // load given num of vecs
   std::ifstream in(filename, std::ios::binary);
@@ -38,6 +40,7 @@ void load_data_bvecs(const char* filename, float*& data,
   in.close();
 }
 
+/* SBERT base | query */
 void load_data_SBERT(const char* filename, float*& data, unsigned num) { // load given num of vecs
   std::ifstream in(filename, std::ios::binary);
   if (!in.is_open()) {
@@ -52,6 +55,7 @@ void load_data_SBERT(const char* filename, float*& data, unsigned num) { // load
   in.close();
 }
 
+/* Deep | SBERT gt */
 void load_data_deep_ibin(const char* filename, std::vector<std::vector<unsigned>>& data, unsigned num) { // load given num of vecs
   std::ifstream in(filename, std::ios::binary);
   if (!in.is_open()) {
@@ -69,3 +73,20 @@ void load_data_deep_ibin(const char* filename, std::vector<std::vector<unsigned>
   in.close();
 }
 
+/* Deep base | query */
+void load_data_deep_fbin(const char* filename, float*& data, unsigned num) { // load given num of vecs
+  std::ifstream in(filename, std::ios::binary);
+  if (!in.is_open()) {
+    std::cout << "open file error" << std::endl;
+    exit(-1);
+  }
+  in.seekg(4, std::ios::cur);
+  int dim;
+  in.read((char *) &dim, 4);
+  data = new float[(size_t)num * (size_t)dim];
+
+  for (size_t i = 0; i < num; i++) {
+    in.read((char*)(data + i * dim), dim * sizeof(float));
+  }
+  in.close();
+}
