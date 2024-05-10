@@ -151,8 +151,17 @@ int main(int argc, char** argv) {
     }
   }
 
-  double recall = calculate_recall(res, gt, K);
-  std::cout << "recall: " << recall << std::endl;
+  double recall_1, recall_10;
+  if (L < 10) {
+    recall_1 = calculate_recall(res, gt, 1);
+    std::cout << "recall_1: " << recall_1 << std::endl;
+  }
+  else {
+    recall_1 = calculate_recall(res, gt, 1);
+    recall_10 = calculate_recall(res, gt, 10);
+    std::cout << "recall_1: " << recall_1 << std::endl;
+    std::cout << "recall_10: " << recall_10 << std::endl;
+  }
   double qps = 1e6 * query_num / total_time;
   std::cout << "qps: " << qps << std::endl;
 
