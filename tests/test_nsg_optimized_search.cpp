@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
   float* query_load = NULL;
   unsigned query_num, query_dim;
   std::vector<std::vector<unsigned>> gt;
-  if (strcmp(argv[1], "sift1m") == 0) {
+  if (strcmp(argv[1], "SIFT1M") == 0) {
     std::cout << "load base vectors..." << std::endl;
     points_num = 1e6;
     load_data_bvecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/bigann_base.bvecs", data_load, dim, points_num);
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     load_data_bvecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/bigann_query.bvecs", query_load, query_dim, query_num);
     load_data_ivecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/gnd/idx_1M.ivecs", gt, query_num);
   }
-  else if (strcmp(argv[1], "sift10m") == 0) {
+  else if (strcmp(argv[1], "SIFT10M") == 0) {
     points_num = 1e7;
     load_data_bvecs("/mnt/scratch/wenqi/Faiss_experiments/bigann/bigann_base.bvecs", data_load, dim, points_num);
     query_num = 1e4;
