@@ -26,9 +26,9 @@ double calculate_recall(std::vector<std::vector<unsigned>>& I, std::vector<std::
 
 
 int main(int argc, char** argv) {
-  if (argc != 8) {
+  if (argc != 7) {
     std::cout << argv[0]
-              << " dataset nsg_path search_L search_K omp interq_multithread batch_size"
+              << " dataset nsg_path search_L omp interq_multithread batch_size"
               << std::endl;
     exit(-1);
   }
@@ -89,16 +89,10 @@ int main(int argc, char** argv) {
 
 
   unsigned L = (unsigned)atoi(argv[3]);
-  unsigned K = (unsigned)atoi(argv[4]);
 
-  int omp = atoi(argv[5]);
-  int interq_multithread = atoi(argv[6]);
-  int batch_size = atoi(argv[7]);
-
-  if (L < K) {
-    std::cout << "search_L cannot be smaller than search_K!" << std::endl;
-    exit(-1);
-  }
+  int omp = atoi(argv[4]);
+  int interq_multithread = atoi(argv[5]);
+  int batch_size = atoi(argv[6]);
 
   // data_load = efanna2e::data_align(data_load, points_num, dim);//one must
   // align the data before build query_load = efanna2e::data_align(query_load,
@@ -114,7 +108,7 @@ int main(int argc, char** argv) {
   paras.Set<unsigned>("P_search", L);
 
   std::vector<std::vector<unsigned> > res(query_num);
-  for (unsigned i = 0; i < query_num; i++) res[i].resize(K);
+  for (unsigned i = 0; i < query_num; i++) res[i].resize(L);
 
   if (query_num % batch_size != 0) {
     std::cout << "query_num must be times of batch_size!" << std::endl;
@@ -130,7 +124,7 @@ int main(int argc, char** argv) {
       auto s = std::chrono::high_resolution_clock::now();
       #pragma omp parallel for num_threads(interq_multithread) schedule(dynamic)
       for (unsigned i = j; i < j + batch_size; i++) {
-        index.SearchWithOptGraph(query_load + i * dim, K, paras, res[i].data());
+        index.SearchWithOptGraph(query_load + i * dim, L, paras, res[i].data());
       }
       auto e = std::chrono::high_resolution_clock::now();
       auto diff = std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
@@ -142,7 +136,7 @@ int main(int argc, char** argv) {
     for (unsigned j = 0; j < query_num; j += batch_size) {
       auto s = std::chrono::high_resolution_clock::now();
       for (unsigned i = j; i < j + batch_size; i++) {
-        index.SearchWithOptGraph(query_load + i * dim, K, paras, res[i].data());
+        index.SearchWithOptGraph(query_load + i * dim, L, paras, res[i].data());
       }
       auto e = std::chrono::high_resolution_clock::now();
       auto diff = std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
