@@ -434,9 +434,19 @@ void IndexNSG::Build(size_t n, const float *data, const Parameters &parameters) 
     }
   }
 
+  unsigned max = 0, min = 1e6, avg = 0;
+  for (size_t i = 0; i < nd_; i++) {
+    auto size = final_graph_[i].size();
+    max = max < size ? size : max;
+    min = min > size ? size : min;
+    avg += size;
+  }
+  avg /= 1.0 * nd_;
+  printf("Degree Statistics: Max = %d, Min = %d, Avg = %d\n", max, min, avg);
+
   tree_grow(parameters);
 
-  unsigned max = 0, min = 1e6, avg = 0;
+  max = 0, min = 1e6, avg = 0;
   for (size_t i = 0; i < nd_; i++) {
     auto size = final_graph_[i].size();
     max = max < size ? size : max;
@@ -535,13 +545,13 @@ void IndexNSG::SearchWithOptGraph(const float *query, size_t K,
     flags[init_ids[tmp_l]] = true;
   }
 
-  while (tmp_l < L) {
-    unsigned id = rand() % nd_;
-    if (flags[id]) continue;
-    flags[id] = true;
-    init_ids[tmp_l] = id;
-    tmp_l++;
-  }
+  // while (tmp_l < L) {
+  //   unsigned id = rand() % nd_;
+  //   if (flags[id]) continue;
+  //   flags[id] = true;
+  //   init_ids[tmp_l] = id;
+  //   tmp_l++;
+  // }
 
   for (unsigned i = 0; i < init_ids.size(); i++) {
     unsigned id = init_ids[i];
@@ -677,6 +687,9 @@ void IndexNSG::findroot(boost::dynamic_bitset<> &flag, unsigned &root,
     if (flag[pool[i].id]) {
       // std::cout << pool[i].id << '\n';
       root = pool[i].id;
+      if (final_graph_[root].size() >= parameter.Get<unsigned>("R"))
+        continue;
+
       found = 1;
       break;
     }
@@ -686,6 +699,8 @@ void IndexNSG::findroot(boost::dynamic_bitset<> &flag, unsigned &root,
       unsigned rid = rand() % nd_;
       if (flag[rid]) {
         root = rid;
+        if (final_graph_[root].size() >= parameter.Get<unsigned>("R"))
+          continue;
         break;
       }
     }
