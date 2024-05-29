@@ -40,6 +40,16 @@ int main(int argc, char** argv) {
     load_data_deep_fbin("/mnt/scratch/wenqi/Faiss_experiments/deep1b/base.1B.fbin", data_load, points_num);
     dim = 96;
   }
+  else if (strcmp(argv[1], "SPACEV1M") == 0) {
+    points_num = 1e6;
+    load_data_spacev("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/vectors_all.bin", data_load, points_num);
+    dim = 100;
+  }
+  else if (strcmp(argv[1], "SPACEV10M") == 0) {
+    points_num = 1e7;
+    load_data_spacev("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/vectors_all.bin", data_load, points_num);
+    dim = 100;
+  }
   else {
     std::cout << "Unknown dataset" << std::endl;
     exit(-1);

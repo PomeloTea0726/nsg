@@ -86,6 +86,24 @@ int main(int argc, char** argv) {
     query_dim = 96;
     load_data_deep_ibin("/mnt/scratch/wenqi/Faiss_experiments/deep1b/gt_idx_10M.ibin", gt, query_num);
   }
+  else if (strcmp(argv[1], "SPACEV1M") == 0) {
+    points_num = 1e6;
+    load_data_spacev("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/vectors_all.bin", data_load, points_num);
+    dim = 100;
+    query_num = 1e4;
+    load_data_spacev("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/query_10K.bin", query_load, query_num);
+    query_dim = 100;
+    load_data_deep_ibin("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/gt_idx_1M.ibin", gt, query_num);
+  }
+  else if (strcmp(argv[1], "SPACEV10M") == 0) {
+    points_num = 1e7;
+    load_data_spacev("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/vectors_all.bin", data_load, points_num);
+    dim = 100;
+    query_num = 1e4;
+    load_data_spacev("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/query_10K.bin", query_load, query_num);
+    query_dim = 100;
+    load_data_deep_ibin("/mnt/scratch/wenqi/Faiss_experiments/SPACEV/gt_idx_10M.ibin", gt, query_num);
+  }
   else {
     std::cout << "Unknown dataset" << std::endl;
     exit(-1);
