@@ -14,7 +14,7 @@ double calculate_recall(std::vector<std::vector<unsigned>>& I, std::vector<std::
     assert(I[0].size() >= k);
     assert(gt[0].size() >= k);
     int nq = I.size();
-    int total_intersect = 0;
+    double total_intersect = 0;
 
     for (int i = 0; i < nq; i++) {
         for (int j = 0; j < k; j++) {
@@ -26,7 +26,7 @@ double calculate_recall(std::vector<std::vector<unsigned>>& I, std::vector<std::
             }
         }
     }
-    return static_cast<double>(total_intersect) / (nq * k);
+    return static_cast<double>(total_intersect) / (double)(nq * k);
 }
 
 
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
   // data_load = efanna2e::data_align(data_load, points_num, dim);//one must
   // align the data before build query_load = efanna2e::data_align(query_load,
   // query_num, query_dim);
-  efanna2e::IndexNSG index(dim, points_num, efanna2e::FAST_L2, nullptr);
+  efanna2e::IndexNSG index(dim, points_num, efanna2e::L2, nullptr);
   std::cout << "load nsg index from " << argv[2] << std::endl;
   index.Load(argv[2]);
   std::cout << "optimize graph" << std::endl;
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     for (unsigned j = 0; j < query_num; j += batch_size) {
       auto s = std::chrono::high_resolution_clock::now();
       for (unsigned i = j; i < j + batch_size; i++) {
-        index.SearchWithOptGraph(query_load + i * dim, L, paras, res[i].data());
+        index.SearchWithOptGraph(query_load + i * dim, 10, paras, res[i].data());
       }
       auto e = std::chrono::high_resolution_clock::now();
       auto diff = std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
