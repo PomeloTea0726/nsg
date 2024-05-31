@@ -10,25 +10,6 @@
 #include <iostream>
 #include <load_data.h>
 
-double calculate_recall(std::vector<std::vector<unsigned>>& I, std::vector<std::vector<unsigned>>& gt, int k, int batch_size) {
-    assert(I[0].size() >= k);
-    assert(gt[0].size() >= k);
-    int valid_Nquery = (I.size() / batch_size) * batch_size;
-    double total_intersect = 0;
-
-    for (int i = 0; i < valid_Nquery; i++) {
-        for (int j = 0; j < k; j++) {
-            for (int t = 0; t < k; t++) {
-                if (I[i][j] == gt[i][t]) {
-                    total_intersect++;
-                    break;
-                }
-            }
-        }
-    }
-    return static_cast<double>(total_intersect) / (double)(valid_Nquery * k);
-}
-
 
 int main(int argc, char** argv) {
   if (argc != 7) {
@@ -140,47 +121,51 @@ int main(int argc, char** argv) {
   std::cout << "query_num divided into " << query_num / batch_size << " batches" << std::endl;
   std::cout << "time for each batch:" << std::endl;
 
-  int64_t total_time = 0;
+  // int64_t total_time = 0;
+  double counter = 0;
   // auto s = std::chrono::high_resolution_clock::now();
+  printf("Infinite search begins. Now you can measure the energy consumption.\n");
   if (omp) {
-    for (unsigned j = 0; j <= query_num - batch_size; j += batch_size) {
-      auto s = std::chrono::high_resolution_clock::now();
-      #pragma omp parallel for num_threads(interq_multithread) schedule(dynamic)
-      for (unsigned i = j; i < j + batch_size; i++) {
-        index.SearchWithOptGraph(query_load + i * dim, L, paras, res[i].data());
+    while(1) {
+      if (std::fmod(counter, 5) == 0)
+        printf("Loop counter: %f\n", counter);
+      counter += 1;
+
+      for (unsigned j = 0; j <= query_num - batch_size; j += batch_size) {
+        // auto s = std::chrono::high_resolution_clock::now();
+        #pragma omp parallel for num_threads(interq_multithread) schedule(dynamic)
+        for (unsigned i = j; i < j + batch_size; i++) {
+          index.SearchWithOptGraph(query_load + i * dim, 10, paras, res[i].data());
+        }
+        // auto e = std::chrono::high_resolution_clock::now();
+        // auto diff = std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
+        // total_time += diff;
+        // std::cout << diff << " us\n";
       }
-      auto e = std::chrono::high_resolution_clock::now();
-      auto diff = std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
-      total_time += diff;
-      std::cout << diff << " us\n";
     }
+
   }
   else {
-    for (unsigned j = 0; j <= query_num - batch_size; j += batch_size) {
-      auto s = std::chrono::high_resolution_clock::now();
-      for (unsigned i = j; i < j + batch_size; i++) {
-        index.SearchWithOptGraph(query_load + i * dim, 10, paras, res[i].data());
+    while(1) {
+      if (std::fmod(counter, 5) == 0)
+        printf("Loop counter: %f\n", counter);
+      counter += 1;
+
+      for (unsigned j = 0; j <= query_num - batch_size; j += batch_size) {
+        // auto s = std::chrono::high_resolution_clock::now();
+        for (unsigned i = j; i < j + batch_size; i++) {
+          index.SearchWithOptGraph(query_load + i * dim, 10, paras, res[i].data());
+        }
+        // auto e = std::chrono::high_resolution_clock::now();
+        // auto diff = std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
+        // total_time += diff;
+        // std::cout << diff << " us\n";
       }
-      auto e = std::chrono::high_resolution_clock::now();
-      auto diff = std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
-      total_time += diff;
-      std::cout << diff << " us\n";
     }
+
   }
 
-  double recall_1, recall_10;
-  if (L < 10) {
-    recall_1 = calculate_recall(res, gt, 1, batch_size);
-    std::cout << "recall_1: " << recall_1 << std::endl;
-  }
-  else {
-    recall_1 = calculate_recall(res, gt, 1, batch_size);
-    recall_10 = calculate_recall(res, gt, 10, batch_size);
-    std::cout << "recall_1: " << recall_1 << std::endl;
-    std::cout << "recall_10: " << recall_10 << std::endl;
-  }
-  double qps = 1e6 * query_num / total_time;
-  std::cout << "qps: " << qps << std::endl;
+
 
   return 0;
 }
